@@ -16,7 +16,7 @@ type ApiFormAccessKey struct {
 	client            *MiniAppClient
 }
 
-func NewApiFormAccessKey(client *MiniAppClient) *ApiFormAccessKey {
+func NewApiFormAccessToken(client *MiniAppClient) *ApiFormAccessKey {
 	frm := &ApiFormAccessKey{
 		client:  client,
 		ApiForm: gorouter.NewGetForm(),
