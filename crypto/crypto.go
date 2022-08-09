@@ -2,9 +2,12 @@ package crypto
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
 	"errors"
 )
 
@@ -18,6 +21,7 @@ func GenerateSecretKey() (key []byte, iv []byte, err error) {
 	_, err = rand.Read(key)
 	return
 }
+
 func AESEncrypt(message string) ([]byte, error) {
 
 	key, iv, err := GenerateSecretKey()
@@ -34,6 +38,25 @@ func AESEncrypt(message string) ([]byte, error) {
 	crypted := make([]byte, len(content))
 	ecb.CryptBlocks(crypted, content)
 	return crypted, nil
+}
+
+func HeaderOPSignature(privateKey *rsa.PrivateKey, message string) ([]byte, error) {
+
+	h := sha256.New()
+	h.Write([]byte(message))
+	d := h.Sum(nil)
+
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, d)
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Printf("Signature in byte: %v\n\n", signature)
+	return signature, nil
+
+	//encodedSig := base64.StdEncoding.EncodeToString(signature)
+
+	//fmt.Printf("Encoded signature: %v\n\n", encodedSig)
 }
 
 //OP-Signature = base64UrlEncode(sha256withrsa(data + M-timestamp + openSecretKey))

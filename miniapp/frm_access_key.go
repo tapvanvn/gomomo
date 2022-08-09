@@ -1,7 +1,7 @@
 package miniapp
 
 import (
-	"encoding/hex"
+	"encoding/base64"
 	"fmt"
 	"strconv"
 	"strings"
@@ -33,11 +33,13 @@ func (frm *ApiFormAccessKey) Request(domain string, path string, indexes map[str
 	for key, val := range frm.Params {
 		dataSegments = append(dataSegments, fmt.Sprintf("%s=%s", key, val))
 	}
+	signDataRaw := strings.Join(dataSegments, "&") + timestamp + frm.client.OpenSecret
+	signature, _ := crypto.HeaderOPSignature(frm.client.PrivateKey, signDataRaw)
 
-	signature, _ := crypto.AESEncrypt(strings.Join(dataSegments, "&") + timestamp + frm.client.OpenSecret)
+	fmt.Println("signDataRaw:", signDataRaw, "\n\tsign:", base64.URLEncoding.EncodeToString(signature))
 
 	frm.Headers["Authorization"] = "Bearer " + indexes["authCode"].(string)
-	frm.Headers["OP-Signature"] = hex.EncodeToString(signature)
+	frm.Headers["OP-Signature"] = base64.URLEncoding.EncodeToString(signature) //hex.EncodeToString(signature)
 	frm.Headers["M-Timestamp"] = timestamp
 
 	return frm.ApiForm.Request(domain, path, indexes)

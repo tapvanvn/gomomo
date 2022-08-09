@@ -16,7 +16,7 @@ func Test1(t *testing.T) {
 		OpenPrivateKey: "",
 		OpenPublicKey:  "",
 	}
-	appClient := miniapp.NewMiniAppClient(true, config)
+	appClient, _ := miniapp.NewMiniAppClient(true, config)
 	partnerUserID := ""
 	authCode := ""
 	token, err := appClient.RequestAccessToken(partnerUserID, authCode)
